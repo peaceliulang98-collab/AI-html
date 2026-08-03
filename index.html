@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>抖音达人筛选工具 — 小白使用说明书</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800;9..144,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ========== Design Tokens ========== */
+:root {
+  /* Warm cream palette with terracotta accent */
+  --bg: oklch(97.5% 0.012 75);
+  --bg-surface: oklch(99.5% 0.006 75);
+  --bg-elevated: oklch(95% 0.015 75);
+  --bg-tint: oklch(93% 0.025 45);
+
+  --text-primary: oklch(22% 0.025 55);
+  --text-secondary: oklch(45% 0.02 55);
+  --text-muted: oklch(60% 0.015 55);
+  --text-on-accent: oklch(98% 0.01 75);
+
+  --accent: oklch(58% 0.16 38);
+  --accent-dark: oklch(42% 0.13 38);
+  --accent-light: oklch(90% 0.05 42);
+  --accent-subtle: oklch(94% 0.03 42);
+
+  --teal: oklch(48% 0.09 210);
+  --teal-light: oklch(90% 0.03 210);
+
+  --border: oklch(88% 0.012 60);
+  --border-strong: oklch(78% 0.02 55);
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, 'Songti SC', serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+
+  /* Spacing (4pt base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* Easing */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout */
+  --sidebar-w: 260px;
+  --content-max: 720px;
+  --content-pad: clamp(1.5rem, 4vw, 3rem);
+}
+
+/* ========== Reset ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 2rem; }
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: var(--accent-dark); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ========== Progress Bar ========== */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+  transform-origin: left;
+  transform: scaleX(0);
+  z-index: 1000;
+  transition: transform 100ms linear;
+}
+
+/* ========== Sidebar ========== */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  padding: var(--space-12) var(--space-6) var(--space-8);
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  background: var(--bg-surface);
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+  line-height: 1.2;
+}
+.sidebar-brand-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-8);
+}
+
+.sidebar-nav {
+  list-style: none;
+  flex: 1;
+}
+.sidebar-nav li { margin-bottom: 2px; }
+.sidebar-nav a {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: color 150ms var(--ease-out-quart), background 150ms var(--ease-out-quart);
+  line-height: 1.4;
+}
+.sidebar-nav a:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.sidebar-nav a.active {
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+.sidebar-nav .step-num {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--accent);
+  min-width: 1.5em;
+  font-variant-numeric: tabular-nums;
+}
+.sidebar-nav a.active .step-num { color: var(--accent-dark); }
+
+.sidebar-footer {
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ========== Main Content ========== */
+.main {
+  margin-left: var(--sidebar-w);
+  padding: 0 var(--content-pad);
+  max-width: calc(var(--content-max) + var(--content-pad) * 2);
+}
+
+/* ========== Hero ========== */
+.hero {
+  padding: var(--space-24) 0 var(--space-16);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-16);
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--space-6);
+}
+.hero-eyebrow::before {
+  content: '';
+  width: 24px;
+  height: 2px;
+  background: var(--accent);
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.5rem, 6vw, 4.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin-bottom: var(--space-6);
+}
+.hero h1 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--accent);
+}
+.hero-lead {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 52ch;
+  margin-bottom: var(--space-8);
+}
+.hero-meta {
+  display: flex;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+.hero-meta span { display: flex; align-items: center; gap: var(--space-2); }
+.hero-meta strong { color: var(--text-secondary); font-weight: 600; }
+
+/* ========== Sections ========== */
+.section {
+  padding: var(--space-16) 0;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-of-type { border-bottom: none; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-5);
+  margin-bottom: var(--space-10);
+}
+.section-num {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 3.5rem;
+  line-height: 1;
+  color: var(--accent);
+  letter-spacing: -0.04em;
+  flex-shrink: 0;
+}
+.section-title-wrap { flex: 1; }
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+.section-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-muted);
+  margin-top: var(--space-2);
+}
+
+/* ========== Content Elements ========== */
+.prose > p {
+  margin-bottom: var(--space-5);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+.prose > p:last-child { margin-bottom: 0; }
+
+.prose strong { font-weight: 600; color: var(--text-primary); }
+
+.prose h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  margin-top: var(--space-10);
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+}
+.prose h3:first-child { margin-top: 0; }
+
+.prose h4 {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-3);
+  color: var(--text-primary);
+}
+
+.prose ul, .prose ol {
+  margin-bottom: var(--space-5);
+  padding-left: 1.5em;
+}
+.prose li {
+  margin-bottom: var(--space-2);
+  line-height: 1.7;
+}
+.prose ul li::marker { color: var(--accent); }
+.prose ol li::marker { color: var(--accent); font-weight: 600; }
+
+/* Callout */
+.callout {
+  background: var(--accent-subtle);
+  border-left: 3px solid var(--accent);
+  padding: var(--space-5) var(--space-6);
+  margin: var(--space-6) 0;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+.callout strong { color: var(--accent-dark); }
+.callout--info {
+  background: var(--teal-light);
+  border-left-color: var(--teal);
+}
+.callout--info strong { color: var(--teal); }
+.callout--warn {
+  background: oklch(94% 0.04 65);
+  border-left-color: oklch(60% 0.15 65);
+}
+.callout--warn strong { color: oklch(42% 0.13 65); }
+.callout-label {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+  color: var(--accent);
+}
+.callout--info .callout-label { color: var(--teal); }
+.callout--warn .callout-label { color: oklch(42% 0.13 65); }
+
+/* Tables */
+.table-wrap {
+  overflow-x: auto;
+  margin: var(--space-6) 0;
+  -webkit-overflow-scrolling: touch;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+thead { background: var(--bg-elevated); }
+th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8125rem;
+}
+td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  vertical-align: top;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--bg-tint); }
+
+/* Code blocks */
+.code-block {
+  position: relative;
+  margin: var(--space-6) 0;
+  background: oklch(18% 0.02 55);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.code-block pre {
+  padding: var(--space-5) var(--space-6);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: oklch(90% 0.01 75);
+}
+.code-block pre code { font-family: inherit; }
+.copy-btn {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  background: oklch(28% 0.02 55);
+  color: oklch(80% 0.01 75);
+  border: none;
+  padding: var(--space-2) var(--space-3);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms var(--ease-out-quart), color 150ms var(--ease-out-quart);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.copy-btn:hover { background: oklch(35% 0.03 55); color: oklch(95% 0.01 75); }
+.copy-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.copy-btn.copied { background: var(--accent); color: var(--text-on-accent); }
+
+/* Inline code */
+code.inline {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--bg-elevated);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: var(--accent-dark);
+}
+
+/* File tree */
+.file-tree {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: var(--space-5) var(--space-6);
+  margin: var(--space-6) 0;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+.file-tree .dir { color: var(--accent-dark); font-weight: 600; }
+.file-tree .file { color: var(--text-primary); }
+
+/* Feature grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-8) 0;
+}
+.feature-item {
+  padding: var(--space-5);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 200ms var(--ease-out-quart), transform 200ms var(--ease-out-quart);
+}
+.feature-item:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.feature-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-light);
+  border-radius: 8px;
+  margin-bottom: var(--space-3);
+  font-size: 1.125rem;
+}
+.feature-item h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+}
+.feature-item p {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Step list */
+.step-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-6) 0;
+  counter-reset: step;
+}
+.step-list > li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 3rem;
+  margin-bottom: var(--space-5);
+  line-height: 1.7;
+}
+.step-list > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--accent);
+  background: var(--accent-light);
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+}
+
+/* FAQ Accordion */
+.faq-item {
+  border-bottom: 1px solid var(--border);
+}
+.faq-item:first-child { border-top: 1px solid var(--border); }
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-5) 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-align: left;
+  color: var(--text-primary);
+  line-height: 1.5;
+  transition: color 150ms var(--ease-out-quart);
+}
+.faq-question:hover { color: var(--accent-dark); }
+.faq-question:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.faq-toggle {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--space-4);
+  color: var(--text-muted);
+  transition: transform 300ms var(--ease-out-quart), color 150ms var(--ease-out-quart);
+}
+.faq-item.open .faq-toggle { transform: rotate(45deg); color: var(--accent); }
+.faq-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms var(--ease-out-quart);
+}
+.faq-item.open .faq-answer { grid-template-rows: 1fr; }
+.faq-answer-inner {
+  overflow: hidden;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.faq-answer-inner > div { padding-bottom: var(--space-5); }
+
+/* Flow Diagram */
+.flow-diagram {
+  margin: var(--space-12) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.flow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-5);
+  position: relative;
+}
+.flow-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 44px;
+  bottom: -8px;
+  width: 2px;
+  background: var(--border-strong);
+}
+.flow-dot {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 2px solid var(--accent);
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--accent);
+  z-index: 1;
+}
+.flow-step--branch .flow-dot {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.flow-step--final .flow-dot {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+.flow-content {
+  padding-bottom: var(--space-8);
+  flex: 1;
+}
+.flow-content h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-1);
+  color: var(--text-primary);
+}
+.flow-content p {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+.flow-branch {
+  padding-left: 60px;
+  margin: var(--space-2) 0;
+}
+.flow-branch .flow-step:not(:last-child)::after {
+  left: 19px;
+}
+.flow-branch .flow-dot {
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.flow-branch .flow-step:not(:last-child)::after {
+  left: 13px;
+  top: 32px;
+}
+
+/* Scenario cards */
+.scenario {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: var(--space-6);
+  margin: var(--space-5) 0;
+}
+.scenario h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  margin: 0 0 var(--space-4);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.scenario h4::before {
+  content: '';
+  width: 4px;
+  height: 1.25rem;
+  background: var(--accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.scenario .diff-old, .scenario .diff-new {
+  margin: var(--space-3) 0;
+}
+.scenario .diff-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-1);
+}
+.diff-old .diff-label { color: oklch(50% 0.02 55); }
+.diff-new .diff-label { color: var(--accent); }
+
+/* Footer */
+.page-footer {
+  padding: var(--space-16) 0 var(--space-20);
+  text-align: center;
+}
+.page-footer p {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Mobile menu toggle */
+.menu-toggle {
+  display: none;
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border: none;
+  cursor: pointer;
+  z-index: 950;
+  box-shadow: 0 4px 20px oklch(40% 0.1 38 / 0.3);
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+/* ========== Entrance Animations ========== */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 600ms var(--ease-out-expo), transform 600ms var(--ease-out-expo);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 300ms var(--ease-out-quart);
+    width: 280px;
+    box-shadow: 4px 0 30px oklch(20% 0.02 55 / 0.15);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .menu-toggle { display: flex; }
+  .main { padding: 0 var(--space-6); }
+  .hero { padding: var(--space-16) 0 var(--space-10); }
+  .section { padding: var(--space-10) 0; }
+  .section-num { font-size: 2.5rem; }
+}
+
+@media (max-width: 500px) {
+  .hero h1 { font-size: 2rem; }
+  .section-header { flex-direction: column; gap: var(--space-2); }
+  .section-num { font-size: 2rem; }
+  .feature-grid { grid-template-columns: 1fr; }
+}
+
+/* ========== Reduced Motion ========== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Mobile Menu Toggle -->
+<button class="menu-toggle" id="menuToggle" aria-label="切换目录">
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="17" y2="6"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="3" y1="18" x2="17" y2="18"/></svg>
+</button>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">达人筛选工具</div>
+  <div class="sidebar-brand-sub">小白使用说明书</div>
+  <nav>
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li><a href="#ch1"><span class="step-num">01</span>这是什么工具</a></li>
+      <li><a href="#ch2"><span class="step-num">02</span>下载安装 WorkBuddy</a></li>
+      <li><a href="#ch3"><span class="step-num">03</span>注册登录</a></li>
+      <li><a href="#ch4"><span class="step-num">04</span>准备蝉妈妈账号</a></li>
+      <li><a href="#ch5"><span class="step-num">05</span>创建工作文件夹</a></li>
+      <li><a href="#ch6"><span class="step-num">06</span>开始执行</a></li>
+      <li><a href="#ch7"><span class="step-num">07</span>执行中配合</a></li>
+      <li><a href="#ch8"><span class="step-num">08</span>查看结果</a></li>
+      <li><a href="#ch9"><span class="step-num">09</span>调整筛选条件</a></li>
+      <li><a href="#ch10"><span class="step-num">10</span>常见问题</a></li>
+      <li><a href="#ch11"><span class="step-num">11</span>下一次使用</a></li>
+      <li><a href="#flow"><span class="step-num">12</span>流程一览</a></li>
+    </ul>
+  </nav>
+  <div class="sidebar-footer">
+    基于 WorkBuddy 及蝉妈妈平台<br>2026年8月版本编写
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main">
+
+<!-- ===== Hero ===== -->
+<section class="hero" id="ch1">
+  <h1>用 WorkBuddy<br><em>自动筛选</em>抖音达人</h1>
+  <p class="hero-lead">
+    不需要懂代码，不需要懂 AI。只需要跟着步骤点点鼠标，就能让 AI 帮你在蝉妈妈上筛选出符合条件的抖音美妆护肤带货达人，并生成一份完整的候选名单。
+  </p>
+  <div class="hero-meta">
+    <span><strong>全程零代码</strong></span>
+    <span><strong>约 15–60 分钟</strong>完成</span>
+    <span><strong>自动生成</strong>候选名单</span>
+  </div>
+</section>
+
+<!-- ===== Chapter 1 ===== -->
+<section class="section">
+  <div class="section-header reveal">
+    <div class="section-num">01</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">这是什么工具？能帮你做什么？</h2>
+      <p class="section-subtitle">了解 WorkBuddy 和这个工作流的基本概念</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <h3>WorkBuddy 是什么？</h3>
+    <p><strong>WorkBuddy</strong> 是腾讯出品的 AI 办公助手。你可以把它理解成一个<strong>能帮你干活的智能同事</strong>：</p>
+    <ul>
+      <li>普通的 AI（比如 ChatGPT）只能跟你聊天、给你建议</li>
+      <li>WorkBuddy 能<strong>真正动手干活</strong>：打开网页、操作浏览器、读取数据、整理表格、生成报告文件</li>
+    </ul>
+    <p>你只需要用大白话告诉它"帮我做什么"，它就会自己规划步骤、一步步执行，最后把做好的文件交给你。</p>
+
+    <h3>这个工作流能帮你做什么？</h3>
+    <p>这个工具能帮你在<strong>蝉妈妈</strong>（一个抖音数据分析平台）上自动筛选符合条件的抖音带货达人：</p>
+
+    <div class="feature-grid">
+      <div class="feature-item">
+        <div class="feature-icon">🔍</div>
+        <h4>按条件搜索达人</h4>
+        <p>美妆护肤类、粉丝>10万、女性粉丝居多、近30天有带货</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🚫</div>
+        <h4>自动排除不符账号</h4>
+        <p>新闻号、机构号自动排除，不占名额</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📊</div>
+        <h4>核验达人活跃度</h4>
+        <p>检查达人近两周是否还在发视频</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🎥</div>
+        <h4>核验出镜形式</h4>
+        <p>检查达人最近5条视频是否以单人出镜为主</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🎙️</div>
+        <h4>核验口播语言</h4>
+        <p>下载TOP3达人最新视频，AI听辨是否说中文普通话</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📄</div>
+        <h4>生成最终名单</h4>
+        <p>自动生成一份《候选达人名单.md》文件</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="callout-label">最终交付</span>
+      <strong>一份包含 20 位候选达人的表格文件</strong>，里面写了每位达人的粉丝数、销售额、活跃度、出镜情况、语言核验结果。拿到名单后可以直接去联系达人合作。
+    </div>
+  </div>
+</section>
+
+<!-- ===== Chapter 2 ===== -->
+<section class="section" id="ch2">
+  <div class="section-header reveal">
+    <div class="section-num">02</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">下载并安装 WorkBuddy</h2>
+      <p class="section-subtitle">从官网下载到安装完成，全程约 5 分钟</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <h3>系统要求</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>项目</th><th>要求</th></tr></thead>
+        <tbody>
+          <tr><td>操作系统</td><td>macOS（苹果电脑）或 Windows 均可</td></tr>
+          <tr><td>网络</td><td>需要联网</td></tr>
+          <tr><td>浏览器</td><td>需要安装 Google Chrome（谷歌浏览器）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>下载步骤</h3>
+    <ol class="step-list">
+      <li>用电脑浏览器打开 WorkBuddy 官网：<strong>https://www.workbuddy.cn</strong></li>
+      <li>在官网首页找到<strong>下载按钮</strong>，点击下载对应你电脑系统的安装包：
+        <br>苹果电脑（Mac）→ 下载 <code class="inline">.dmg</code> 文件
+        <br>Windows 电脑 → 下载 <code class="inline">.exe</code> 文件</li>
+      <li>下载完成后，双击安装包进行安装：
+        <br><strong>Mac</strong>：双击 <code class="inline">.dmg</code> 文件，把 WorkBuddy 图标拖到"应用程序"文件夹里
+        <br><strong>Windows</strong>：双击 <code class="inline">.exe</code> 文件，按提示点击"下一步"完成安装</li>
+      <li>安装完成后，在应用程序中找到 <strong>WorkBuddy</strong>，双击打开。</li>
+    </ol>
+
+    <div class="callout callout--info">
+      <span class="callout-label">小白提示</span>
+      安装过程中如果系统提示"是否允许打开"或"是否信任此应用"，请点击"允许"或"信任"。这是苹果/Windows 的安全提示，正常现象。
+    </div>
+
+    <h3>安装 Google Chrome</h3>
+    <p>这个工作流需要用到 Chrome 浏览器来操作蝉妈妈网页。</p>
+    <ul>
+      <li>如果电脑上已经有 Chrome：跳过这一步。</li>
+      <li>如果没有：去 <strong>https://www.google.com/chrome/</strong> 下载安装。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== Chapter 3 ===== -->
+<section class="section" id="ch3">
+  <div class="section-header reveal">
+    <div class="section-num">03</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">注册并登录 WorkBuddy</h2>
+      <p class="section-subtitle">创建你的 WorkBuddy 账号</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <ol class="step-list">
+      <li>打开 WorkBuddy 应用程序。</li>
+      <li>首次打开会看到登录/注册界面。按照提示注册一个账号（通常可以用微信扫码登录）。</li>
+      <li>登录成功后，你会看到 WorkBuddy 的主界面：
+        <ul>
+          <li><strong>左边</strong>：任务列表（以后你的任务会出现在这里）</li>
+          <li><strong>中间</strong>：对话框（在这里打字给 AI 下达任务）</li>
+          <li><strong>右边</strong>：结果区（AI 做好的文件会在这里展示）</li>
+        </ul>
+      </li>
+    </ol>
+
+    <div class="callout callout--info">
+      <span class="callout-label">小白提示</span>
+      如果你看到界面上的按钮不知道是干什么的，不用慌。本说明书后面会一步一步告诉你该点哪里。
+    </div>
+  </div>
+</section>
+
+<!-- ===== Chapter 4 ===== -->
+<section class="section" id="ch4">
+  <div class="section-header reveal">
+    <div class="section-num">04</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">准备蝉妈妈账号</h2>
+      <p class="section-subtitle">注册蝉妈妈、开通会员、保持登录</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <p>这个工作流需要在蝉妈妈（chanmama.com）上查询达人数据，所以你需要：</p>
+
+    <h3>注册蝉妈妈账号</h3>
+    <ol class="step-list">
+      <li>用 Chrome 浏览器打开 <strong>https://www.chanmama.com</strong></li>
+      <li>点击右上角"登录/注册"</li>
+      <li>按提示完成注册（可以用手机号注册）</li>
+    </ol>
+
+    <h3>开通会员</h3>
+    <p>蝉妈妈的达人搜索功能需要<strong>会员权限</strong>。你需要确保你的账号有查看达人库的权限：</p>
+    <ul>
+      <li>具体开通方式请参考蝉妈妈官网的会员说明</li>
+      <li>如果你有公司账号，用公司账号登录即可</li>
+    </ul>
+
+    <h3>在 Chrome 中保持登录状态</h3>
+    <ol class="step-list">
+      <li>在 Chrome 浏览器中打开蝉妈妈网站</li>
+      <li>确保你已经<strong>登录成功</strong>（页面右上角显示你的账号名或头像）</li>
+      <li><strong>登录后不要关闭 Chrome 浏览器</strong>，保持它在后台运行即可</li>
+    </ol>
+
+    <div class="callout callout--warn">
+      <span class="callout-label">重要</span>
+      WorkBuddy 在执行时会调用 Chrome 来操作蝉妈妈页面，所以你的 Chrome 必须保持蝉妈妈的登录状态。如果登录过期了，WorkBuddy 会暂停并提醒你重新登录。
+    </div>
+  </div>
+</section>
+
+<!-- ===== Chapter 5 ===== -->
+<section class="section" id="ch5">
+  <div class="section-header reveal">
+    <div class="section-num">05</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">创建工作文件夹并放入工作流文件</h2>
+      <p class="section-subtitle">一个文件夹，一个文件，就这么简单</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <h3>创建文件夹</h3>
+    <p>在你的电脑桌面上（或任何你喜欢的位置）创建一个文件夹，比如叫"<strong>抖音筛选达人</strong>"。</p>
+
+    <h3>放入工作流文件</h3>
+    <p>把 <strong><code class="inline">达人筛选工作流.md</code></strong> 这个文件放进刚才创建的文件夹里。</p>
+
+    <div class="callout">
+      <span class="callout-label">说明</span>
+      这个文件是"工作流说明书"，它告诉 WorkBuddy 筛选达人的完整步骤和规则。你不需要读懂里面的内容，只需要确保文件在文件夹里就行。
+    </div>
+
+    <h3>文件夹结构</h3>
+    <p>完成后，你的文件夹应该是这样的：</p>
+    <div class="file-tree">
+<span class="dir">抖音筛选达人/</span>
+  └── <span class="file">达人筛选工作流.md</span>
+    </div>
+    <p>就这么简单，一个文件夹一个文件。</p>
+  </div>
+</section>
+
+<!-- ===== Chapter 6 ===== -->
+<section class="section" id="ch6">
+  <div class="section-header reveal">
+    <div class="section-num">06</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">在 WorkBuddy 中开始执行</h2>
+      <p class="section-subtitle">粘贴任务指令，一键启动</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <h3>打开 WorkBuddy 并创建新任务</h3>
+    <ol class="step-list">
+      <li>打开 WorkBuddy 应用程序</li>
+      <li>在对话框（中间区域）点击，准备输入文字</li>
+    </ol>
+
+    <h3>选择工作文件夹</h3>
+    <ol class="step-list">
+      <li>在输入框左下角，找到"<strong>选择工作空间</strong>"（或类似按钮）</li>
+      <li>点击它，选择你刚才创建的"抖音筛选达人"文件夹</li>
+      <li>这样 WorkBuddy 就知道去哪里读取工作流文件，以及把结果文件放在哪里</li>
+    </ol>
+
+    <h3>输入任务指令</h3>
+    <p>在对话框中复制粘贴以下文字（括号里的内容改成你自己的信息）：</p>
+
+    <div class="code-block">
+      <button class="copy-btn" data-copy-target="task-template">复制</button>
+      <pre id="task-template"><code>请按照"达人筛选工作流.md"执行本次蝉妈妈达人筛选。
+
+品牌/项目：〔这里填你的品牌名，比如"XX美妆"〕
+筛选条件沿用默认口径（美妆护肤类、粉丝>10万、女性粉丝>50%、18-35岁、视频带货为主、近30天有带货、近30天视频销售额≥10万元、隐藏新闻号）。
+首轮输出20位候选达人，按近30天视频销售额从高到低排序。
+对最终列表TOP3分别核验最新3条公开视频的中文普通话情况。
+无法可靠核验的项目标记为待人工听审。
+最终输出《候选达人名单.md》，先交付我确认，不进行达人建联或发送消息。</code></pre>
+    </div>
+
+    <h3>发送任务</h3>
+    <p>检查一下文字没有问题后，按<strong>回车键</strong>或点击<strong>发送按钮</strong>，任务就开始了。</p>
+
+    <div class="callout callout--info">
+      <span class="callout-label">小白提示</span>
+      发送后你不需要做任何操作，WorkBuddy 会自动开始工作。你会在对话区看到它正在做什么（比如"正在打开蝉妈妈页面""正在筛选达人"等）。
+    </div>
+  </div>
+</section>
+
+<!-- ===== Chapter 7 ===== -->
+<section class="section" id="ch7">
+  <div class="section-header reveal">
+    <div class="section-num">07</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">执行过程中你需要做什么</h2>
+      <p class="section-subtitle">大部分时间不需要操作，只在需要时配合</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <p>WorkBuddy 在执行过程中，<strong>大部分时间你不需要操作</strong>。但有以下几种情况需要你配合：</p>
+
+    <h3>需要登录蝉妈妈（最重要！）</h3>
+    <p>当 WorkBuddy 第一次打开蝉妈妈页面时，可能会发现没有登录。这时它会暂停并提醒你：</p>
+    <div class="callout">
+      <span class="callout-label">你只需要做一件事</span>
+      在弹出的 Chrome 窗口中，手动登录蝉妈妈（输入账号密码或扫码登录）。登录成功后，告诉 WorkBuddy"已登录"，它就会继续工作。
+    </div>
+
+    <h3>遇到验证码</h3>
+    <div class="callout">
+      <span class="callout-label">你只需要做一件事</span>
+      在 Chrome 窗口中手动完成验证码。完成后告诉 WorkBuddy"已完成验证"。
+    </div>
+
+    <h3>会员权限不足</h3>
+    <p>如果 WorkBuddy 提示"会员数据被遮挡或无权查看"，说明你的蝉妈妈账号权限不够，需要升级会员。这种情况 WorkBuddy 会停止并告诉你缺少什么权限。</p>
+
+    <h3>其他情况</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>情况</th><th>你要做什么</th></tr></thead>
+        <tbody>
+          <tr><td>WorkBuddy 问你确认筛选条件</td><td>回复"确认"或修改条件</td></tr>
+          <tr><td>WorkBuddy 问你要不要继续</td><td>回复"继续"</td></tr>
+          <tr><td>WorkBuddy 报告某个达人不符合条件</td><td>不需要做什么，它会自动跳过</td></tr>
+          <tr><td>WorkBuddy 完成了一步在等你反馈</td><td>回复"好的"或"继续"</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout--info">
+      <span class="callout-label">核心原则</span>
+      WorkBuddy 做的大部分工作你都不需要干预。只有在它<strong>主动问你问题</strong>或<strong>提示你需要操作</strong>时，你才需要回应。
+    </div>
+  </div>
+</section>
+
+<!-- ===== Chapter 8 ===== -->
+<section class="section" id="ch8">
+  <div class="section-header reveal">
+    <div class="section-num">08</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">查看和保存最终结果</h2>
+      <p class="section-subtitle">任务完成后，去哪里看文件</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <h3>任务完成标志</h3>
+    <p>当 WorkBuddy 完成所有步骤后，它会在对话区告诉你"任务已完成"，并在右侧结果区展示生成的文件。</p>
+
+    <h3>查看结果文件</h3>
+    <ol class="step-list">
+      <li>在右侧"结果区"或"全部文件"标签中，找到 <strong><code class="inline">候选达人名单.md</code></strong> 文件</li>
+      <li>点击它可以预览内容</li>
+      <li>这个文件也会自动保存在你选择的"抖音筛选达人"文件夹中</li>
+    </ol>
+
+    <h3>结果文件包含什么</h3>
+    <div class="feature-grid">
+      <div class="feature-item">
+        <div class="feature-icon">📋</div>
+        <h4>筛选口径</h4>
+        <p>本次筛选用了什么条件</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">👥</div>
+        <h4>达人表格</h4>
+        <p>20位候选达人完整信息</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🎯</div>
+        <h4>TOP3语言核验</h4>
+        <p>前3名达人各3条视频检测记录</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">⚠️</div>
+        <h4>待复核事项</h4>
+        <p>哪些数据需后续人工确认</p>
+      </div>
+    </div>
+
+    <h3>后续使用</h3>
+    <ul>
+      <li>用这份名单去联系达人合作</li>
+      <li>把 <code class="inline">.md</code> 文件发给同事查看</li>
+      <li>如果需要 Excel 格式，可以再让 WorkBuddy 转换</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== Chapter 9 ===== -->
+<section class="section" id="ch9">
+  <div class="section-header reveal">
+    <div class="section-num">09</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">如何调整筛选条件和输出格式</h2>
+      <p class="section-subtitle">修改工作流文件，永久生效</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <p>前面的"复用"章节介绍了如何在<strong>发送任务指令时口头修改</strong>某些条件。但如果你希望<strong>长期、稳定地改变默认筛选逻辑</strong>，就需要直接修改 <code class="inline">达人筛选工作流.md</code> 这个文件。</p>
+
+    <div class="callout">
+      <span class="callout-label">两种修改方式</span>
+      <strong>口头修改</strong>（在对话框里说）：只对本次任务有效，下次还要重新说一遍<br>
+      <strong>改文件</strong>（修改 <code class="inline">达人筛选工作流.md</code>）：永久生效，以后每次执行都自动按新规则来
+    </div>
+
+    <h3>怎么打开和修改这个文件？</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>方式</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td>WorkBuddy 内打开</td><td>在 WorkBuddy 对话框输入"帮我打开达人筛选工作流.md看看"</td></tr>
+          <tr><td>系统文本编辑器</td><td>右键文件 → 打开方式 → 记事本（Windows）或 文本编辑（Mac）</td></tr>
+          <tr><td>其他编辑器</td><td>用 VS Code、Typora 等任意文本编辑器打开</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>文件结构总览</h3>
+    <p>这个文件有十一章，你只需要知道<strong>想改什么就去改哪一章</strong>：</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>章节</th><th>标题</th><th>需要改它的场景</th></tr></thead>
+        <tbody>
+          <tr><td>一</td><td>工作流目标与交付物</td><td>想改最终交付几个达人、按什么排序</td></tr>
+          <tr><td>二</td><td>执行前提与权限</td><td>一般不用改</td></tr>
+          <tr><td><strong>三</strong></td><td><strong>默认筛选要求</strong></td><td><strong>最常改：品类、粉丝数、销售额、年龄等</strong></td></tr>
+          <tr><td>四</td><td>任务配置单</td><td>改了第三章后，同步改这里的模板</td></tr>
+          <tr><td>五</td><td>完整执行流程</td><td>想增减筛选步骤时改（进阶）</td></tr>
+          <tr><td>六</td><td>字段定义与状态字典</td><td>想增加/修改表格列的定义时改</td></tr>
+          <tr><td>七</td><td>质量检查清单</td><td>改了条件后同步改检查项</td></tr>
+          <tr><td><strong>八</strong></td><td><strong>输出模板</strong></td><td><strong>想改最终名单的表格列、内容格式时改</strong></td></tr>
+          <tr><td>九</td><td>常见异常与处理</td><td>一般不用改</td></tr>
+          <tr><td>十</td><td>复用时的最小输入</td><td>一般不用改</td></tr>
+          <tr><td>十一</td><td>版本记录</td><td>每次大改后在这里记一笔</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>最常用的修改场景</h3>
+
+    <div class="scenario">
+      <h4>场景A：改筛选条件</h4>
+      <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:var(--space-3)">去文件里找：第三章"默认筛选要求"</p>
+      <div class="diff-old">
+        <div class="diff-label">修改前（粉丝数门槛 10万）</div>
+        <div class="code-block" style="margin:0"><pre><code>| 粉丝数 | 大于10万 | 10万整不算"大于10万" |</code></pre></div>
+      </div>
+      <div class="diff-new">
+        <div class="diff-label">修改后（粉丝数门槛 5万）</div>
+        <div class="code-block" style="margin:0"><pre><code>| 粉丝数 | 大于5万 | 5万整不算"大于5万" |</code></pre></div>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <h4>场景B：改候选达人数量</h4>
+      <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:var(--space-3)">去文件里找：第一章和第三章</p>
+      <div class="diff-old">
+        <div class="diff-label">修改前</div>
+        <div class="code-block" style="margin:0"><pre><code>- 默认候选数量：20位</code></pre></div>
+      </div>
+      <div class="diff-new">
+        <div class="diff-label">修改后</div>
+        <div class="code-block" style="margin:0"><pre><code>- 默认候选数量：10位</code></pre></div>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <h4>场景C：改语言核验范围</h4>
+      <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:var(--space-3)">去文件里找：第三章和第五章步骤8</p>
+      <div class="diff-old">
+        <div class="diff-label">修改前（TOP3）</div>
+        <div class="code-block" style="margin:0"><pre><code>| 语言核验 | 中文普通话 | 默认核验最终列表TOP3 |</code></pre></div>
+      </div>
+      <div class="diff-new">
+        <div class="diff-label">修改后（TOP5）</div>
+        <div class="code-block" style="margin:0"><pre><code>| 语言核验 | 中文普通话 | 默认核验最终列表TOP5 |</code></pre></div>
+      </div>
+    </div>
+
+    <h3>修改后的验证方法</h3>
+    <ol class="step-list">
+      <li><strong>保存文件</strong>：确保修改已保存（Ctrl+S / Cmd+S）</li>
+      <li>在 WorkBuddy 中发送任务时，口头确认你的修改</li>
+      <li>检查 WorkBuddy 的回复：它会复述理解到的筛选条件，你核对是否一致</li>
+      <li>如果不一致：告诉 WorkBuddy "请重新读取达人筛选工作流.md"</li>
+    </ol>
+
+    <h3>注意事项</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>注意事项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>备份原文件</td><td>修改前先复制一份备份，改坏了可以恢复</td></tr>
+          <tr><td>保持表格格式</td><td>Markdown 表格用竖线分隔列，不要破坏对齐</td></tr>
+          <tr><td>全文搜索替换</td><td>改一个条件时，找到所有提到它的地方，不要只改一处</td></tr>
+          <tr><td>同步修改检查清单</td><td>第七章要和第三章的筛选条件保持一致</td></tr>
+          <tr><td>记录版本</td><td>每次大改后在第十一章加一行记录</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout--info">
+      <span class="callout-label">不敢改文件？还有个简单办法</span>
+      可以<strong>让 WorkBuddy 帮你改</strong>。在对话框输入："请帮我修改达人筛选工作流.md，把粉丝数门槛从10万改成5万"，WorkBuddy 会自动帮你修改并告诉你改了什么。
+    </div>
+  </div>
+</section>
+
+<!-- ===== Chapter 10 ===== -->
+<section class="section" id="ch10">
+  <div class="section-header reveal">
+    <div class="section-num">10</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">常见问题</h2>
+      <p class="section-subtitle">遇到问题先看这里</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Q1：WorkBuddy 打不开 Chrome 怎么办？
+          <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg></span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner"><div>
+          确保 Chrome 已经安装并且可以正常打开；Chrome 没有被其他程序占用（关闭所有 Chrome 窗口后重试）；如果问题持续，重启电脑后再试。
+        </div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Q2：蝉妈妈登录后 WorkBuddy 还是说"未登录"？
+          <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg></span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner"><div>
+          可能原因：WorkBuddy 使用的是独立的 Chrome 调试窗口，和你的日常 Chrome 窗口不共享登录状态。解决方法：在 WorkBuddy 弹出的 Chrome 窗口中重新登录蝉妈妈即可。
+        </div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Q3：筛选出来的达人不够 20 位怎么办？
+          <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg></span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner"><div>
+          这说明符合所有硬条件的达人确实不足 20 位。工作流规定<strong>不降低标准凑数</strong>，WorkBuddy 会按实际人数输出并说明原因。
+        </div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Q4：语言核验只做了 TOP3，其他达人怎么办？
+          <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg></span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner"><div>
+          工作流默认只对 TOP3 做语言核验。如果你需要对全部达人做语言核验，在发送任务指令时加上一句："语言核验范围扩展到全部候选达人"。
+        </div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Q5：执行到一半中断了怎么办？
+          <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg></span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner"><div>
+          WorkBuddy 的任务列表会保存你的任务。在左侧任务列表中找到中断的任务，点击继续，告诉它"继续执行"即可。
+        </div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Q6：可以同时筛选其他品类吗？
+          <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg></span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner"><div>
+          可以。在任务指令中把"美妆护肤"改成你需要的品类（比如"食品饮料""服装服饰"），其他条件也可以一起调整。
+        </div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Q7：执行过程中可以关闭电脑吗？
+          <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg></span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner"><div>
+          <strong>不可以</strong>。执行过程中 WorkBuddy 需要使用 Chrome 和网络，电脑需要保持开机和联网状态。
+        </div></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Q8：每次执行大约需要多长时间？
+          <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg></span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner"><div>
+          首次执行（包含登录、工具安装等）：约 30–60 分钟。后续执行（环境已准备好）：约 15–30 分钟。主要时间花在蝉妈妈数据查询、逐个达人核验、视频下载和语言检测。
+        </div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Chapter 11 ===== -->
+<section class="section" id="ch11">
+  <div class="section-header reveal">
+    <div class="section-num">11</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">下一次使用（复用）</h2>
+      <p class="section-subtitle">第一次成功后，以后每次只需 3 步</p>
+    </div>
+  </div>
+
+  <div class="prose reveal">
+    <h3>快速复用步骤</h3>
+    <ol class="step-list">
+      <li>确保 Chrome 中蝉妈妈仍处于登录状态</li>
+      <li>打开 WorkBuddy，选择"抖音筛选达人"文件夹作为工作空间</li>
+      <li>在对话框输入以下指令，按回车发送：</li>
+    </ol>
+
+    <div class="code-block">
+      <button class="copy-btn" data-copy-target="reuse-template">复制</button>
+      <pre id="reuse-template"><code>请按《抖音达人筛选工作流.md》执行本次蝉妈妈达人筛选。
+品牌/项目：〔填写品牌名〕。
+筛选条件沿用默认口径；首轮输出20位；按近30天视频销售额从高到低排序；对最终列表TOP3分别核验最新3条公开视频的中文普通话情况。无法可靠核验的项目标记为待人工听审。最终输出《候选达人名单.md》，先交付我确认，不进行达人建联或发送消息。</code></pre>
+    </div>
+
+    <ol class="step-list" start="4">
+      <li>需要登录蝉妈妈时配合登录即可</li>
+    </ol>
+
+    <h3>可以临时调整的内容</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>想改什么</th><th>怎么改</th></tr></thead>
+        <tbody>
+          <tr><td>换品类</td><td>把指令中"美妆护肤"改成其他品类</td></tr>
+          <tr><td>换粉丝数门槛</td><td>把"粉丝>10万"改成你需要的数字</td></tr>
+          <tr><td>换销售额门槛</td><td>把"≥10万元"改成你需要的数字</td></tr>
+          <tr><td>改候选人数</td><td>把"20位"改成你需要的数量</td></tr>
+          <tr><td>改语言核验范围</td><td>加一句"语言核验范围为全部候选达人"</td></tr>
+          <tr><td>改排序方式</td><td>把"近30天视频销售额"改成其他字段</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout--info">
+      <span class="callout-label">小白提示</span>
+      不确定怎么改也没关系，直接用大白话告诉 WorkBuddy 你想改什么，它能理解。比如"帮我把粉丝数门槛改成5万，销售额改成5万以上"。
+    </div>
+
+    <p><strong>永久调整</strong>（以后每次都生效）：修改 <code class="inline">达人筛选工作流.md</code> 文件，详见<a href="#ch9">第九章</a>。</p>
+  </div>
+</section>
+
+<!-- ===== Flow Diagram ===== -->
+<section class="section" id="flow">
+  <div class="section-header reveal">
+    <div class="section-num">12</div>
+    <div class="section-title-wrap">
+      <h2 class="section-title">完整流程一览</h2>
+      <p class="section-subtitle">从下载到拿到结果，全流程图</p>
+    </div>
+  </div>
+
+  <div class="flow-diagram reveal">
+    <div class="flow-step">
+      <div class="flow-dot">1</div>
+      <div class="flow-content">
+        <h4>下载安装 WorkBuddy</h4>
+        <p>从官网 workbuddy.cn 下载对应系统的安装包</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">2</div>
+      <div class="flow-content">
+        <h4>注册登录 WorkBuddy</h4>
+        <p>微信扫码或手机号注册</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">3</div>
+      <div class="flow-content">
+        <h4>在 Chrome 中登录蝉妈妈</h4>
+        <p>需要会员账号，保持登录状态</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">4</div>
+      <div class="flow-content">
+        <h4>创建文件夹，放入工作流文件</h4>
+        <p>桌面上建文件夹，放入达人筛选工作流.md</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">5</div>
+      <div class="flow-content">
+        <h4>在 WorkBuddy 中选择该文件夹为工作空间</h4>
+        <p>让 WorkBuddy 知道去哪里读取文件</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">6</div>
+      <div class="flow-content">
+        <h4>粘贴任务指令，按回车发送</h4>
+        <p>复制说明书中的指令模板，修改品牌名后发送</p>
+      </div>
+    </div>
+    <div class="flow-step flow-step--branch">
+      <div class="flow-dot">7</div>
+      <div class="flow-content">
+        <h4>WorkBuddy 自动执行</h4>
+        <p>以下步骤由 AI 自动完成</p>
+      </div>
+    </div>
+    <div class="flow-branch">
+      <div class="flow-step">
+        <div class="flow-dot">a</div>
+        <div class="flow-content"><h4>打开蝉妈妈，设置筛选条件</h4></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">b</div>
+        <div class="flow-content"><h4>搜索并采集达人数据</h4></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">c</div>
+        <div class="flow-content"><h4>逐个核验活跃度和出镜形式</h4></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">d</div>
+        <div class="flow-content"><h4>下载TOP3达人视频，AI听辨语言</h4></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot">e</div>
+        <div class="flow-content"><h4>生成《候选达人名单.md》</h4></div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">8</div>
+      <div class="flow-content">
+        <h4>如需登录，在弹出的 Chrome 窗口登录蝉妈妈</h4>
+        <p>登录后告诉 WorkBuddy"已登录"</p>
+      </div>
+    </div>
+    <div class="flow-step flow-step--final">
+      <div class="flow-dot">✓</div>
+      <div class="flow-content">
+        <h4>查看并保存最终结果文件</h4>
+        <p>候选达人名单.md 已自动保存到你的文件夹</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="page-footer">
+  <p>本说明书基于 WorkBuddy 及蝉妈妈平台 2026年8月版本编写。<br>如平台界面或功能有更新，部分步骤可能需要相应调整。</p>
+</footer>
+
+</main>
+
+<script>
+(function() {
+  'use strict';
+
+  // ===== Mobile sidebar toggle =====
+  var menuToggle = document.getElementById('menuToggle');
+  var sidebar = document.getElementById('sidebar');
+  menuToggle.addEventListener('click', function() {
+    sidebar.classList.toggle('open');
+  });
+  // Close sidebar when clicking a link on mobile
+  document.querySelectorAll('.sidebar-nav a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 900) sidebar.classList.remove('open');
+    });
+  });
+
+  // ===== Scroll spy =====
+  var sections = document.querySelectorAll('.section, #ch1');
+  var navLinks = document.querySelectorAll('.sidebar-nav a');
+  var sectionIds = [];
+
+  // Collect all section ids
+  document.querySelectorAll('section[id]').forEach(function(s) {
+    sectionIds.push(s.id);
+  });
+  // Also include the hero section (ch1 is the hero)
+  if (document.getElementById('ch1')) sectionIds.unshift('ch1');
+
+  function updateActiveNav() {
+    var scrollPos = window.scrollY + 100;
+    var currentId = sectionIds[0];
+
+    sectionIds.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.offsetTop <= scrollPos) {
+        currentId = id;
+      }
+    });
+
+    navLinks.forEach(function(link) {
+      var href = link.getAttribute('href');
+      if (href === '#' + currentId) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  }
+
+  // ===== Progress bar =====
+  var progressBar = document.getElementById('progressBar');
+  function updateProgress() {
+    var scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var progress = window.scrollY / scrollHeight;
+    progressBar.style.transform = 'scaleX(' + Math.min(progress, 1) + ')';
+  }
+
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        updateActiveNav();
+        updateProgress();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+  updateActiveNav();
+  updateProgress();
+
+  // ===== FAQ Accordion =====
+  document.querySelectorAll('.faq-question').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var item = btn.closest('.faq-item');
+      var isOpen = item.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.faq-item').forEach(function(fi) {
+        fi.classList.remove('open');
+        fi.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+      });
+      // Open clicked if it was closed
+      if (!isOpen) {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // ===== Copy to clipboard =====
+  document.querySelectorAll('.copy-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var targetId = btn.getAttribute('data-copy-target');
+      var target = document.getElementById(targetId);
+      if (!target) return;
+      var text = target.textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = '已复制';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = '复制';
+          btn.classList.remove('copied');
+        }, 2000);
+      }).catch(function() {
+        // Fallback
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(textarea);
+        btn.textContent = '已复制';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = '复制';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  });
+
+  // ===== Intersection Observer for reveals =====
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(function(el) {
+      observer.observe(el);
+    });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el) {
+      el.classList.add('visible');
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>
